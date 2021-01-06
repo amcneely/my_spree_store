@@ -1,0 +1,37 @@
+<%= render partial: 'spree/admin/shared/product_tabs', locals: {current: :variants} %>
+
+<%= render partial: 'spree/admin/shared/error_messages', locals: { target: @variant } %>
+
+<%= form_for [:admin, @product, @variant] do |f| %>
+  <div class="card mb-3 bg-light">
+    <div class="card-body">
+      <fieldset data-hook="admin_variant_new_form">
+        <% if @product.variant_migration_candidate? %>
+          <legend class="border-bottom"><%= 'Migrate Product History to First Variant' %></legend>
+          <div class="row">
+            <div data-hook="admin_variant_form_fields" class="col-12 col-md-6">
+              <div data-hook="variants">
+                <% @product.option_types.each do |option_type| %>
+                  <div class="form-group" data-hook="presentation">
+                    <%= label :new_variant, option_type.presentation %>
+                    <% if option_type.name == 'color' %>
+                      <%= f.collection_select 'option_value_ids', option_type.option_values, :id, :name,
+                        { include_blank: true }, { name: 'variant[option_value_ids][]', class: 'select2' } %>
+                    <% else %>
+                      <%= f.collection_select 'option_value_ids', option_type.option_values, :id, :presentation,
+                        { include_blank: true }, { name: 'variant[option_value_ids][]', class: 'select2' } %>
+                    <% end %>
+                  </div>
+                <% end %>
+              </div>
+            </div>
+          </div>
+        <% else %>
+          <legend class="border-bottom"><%= Spree.t(:new_variant) %></legend>
+          <%= render partial: 'form', locals: { f: f } %>
+        <% end %>
+        <%= render partial: 'spree/admin/shared/new_resource_links' %>
+      </fieldset>
+    </div>
+  </div>
+<% end %>
